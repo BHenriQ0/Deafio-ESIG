@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <meta charset="UTF-8"/>
+    <title>Listar Tarefa</title>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #e3f2fd; /* azul claro de fundo */
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 2rem;
+            width: 1000px;
+            height: 800px;
+            border: 1px solid #4a90e2;
+            border-radius: 8px;
+            background: #f0f8ff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+        }
+
+        .box h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #1a4780;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .row label {
+            width: 140px;
+            text-align: right;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        .row .input-wrapper {
+            flex: 1;
+        }
+
+        .ui-inputtext, .ui-selectonemenu {
+            border: 1px solid #64b5f6;
+            background: #e8f5fd;
+        }
+
+        .ui-button {
+            background: #2196f3;
+            border: none;
+            color: #fff;
+        }
+
+        .ui-button:hover {
+            background: #1e88e5;
+        }
+
+        .pair-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .pair-row .row {
+            flex: 1;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+    </style>
+
+
+</h:head>
+
+<h:body>
+    <div class="container">
+        <h:form id="formTarefas">
+        <div class="box">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+                <h1 style="margin:0;">Listar Tarefa</h1>
+                <p:button icon="pi pi-align-justify"
+                          title="Cadastrar Tarefa"
+                          value="Cadatrar Tarefa"
+                          outcome="cadastrar-tarefa?faces-redirect=true" />
+            </div>
+
+
+            <div class="row">
+                <label for="idNumero">Número:</label>
+                <div class="input-wrapper">
+                    <p:inputText id="idNumero" value="#{tarefaBean.tarefaNumero}" style="width:100%;"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="idTituloDescricao">Título/Descrição:</label>
+                <div class="input-wrapper">
+                    <p:inputText id="idTituloDescricao" value="#{tarefaBean.tarefaTituloDescricao}"
+                                 style="width:100%;"/>
+                </div>
+            </div>
+
+            <div class="pair-row">
+                <div class="row">
+                    <label for="idResponsavel">Responsável:</label>
+                    <div class="input-wrapper">
+                        <p:selectOneMenu id="idResponsavel" value="#{tarefaBean.tarefaResponsavel}" style="width:100%"
+                                         converter="omnifaces.SelectItemsConverter">
+                            <f:selectItem itemLabel="SELECIONE" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{responsavelBean.responsavelCombo()}" var="r" itemValue="#{r}"
+                                           itemLabel="#{r.nome}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+                <div class="row">
+                    <label for="idSituacao">Situação:</label>
+                    <div class="input-wrapper">
+                        <p:selectOneMenu id="idSituacao" value="#{tarefaBean.tarefaSituacao}" style="width:100%"
+                                         converter="omnifaces.SelectItemsConverter">
+                            <f:selectItem itemLabel="SELECIONE" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{situacaoBean.situacaoCombo()}" var="s" itemValue="#{s}"
+                                           itemLabel="#{s.descricao}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+
+            <p:dataTable id="tblTarefas"
+                         value="#{tarefaBean.tarefasFiltradas}"
+                         var="t"
+                         paginator="true"
+                         rows="4"
+                         pageLinks="5"
+                         paginatorPosition="bottom"
+                         style="margin-top:1rem; margin-bottom:1rem;"
+            emptyMessage="Nenhuma tarefa encontrada.">
+            <p:column headerText="Número" sortBy="#{t.id}">#{t.id}</p:column>
+            <p:column headerText="Título">#{t.titulo}</p:column>
+            <p:column headerText="Responsável">#{t.responsavel.nome}</p:column>
+            <p:column headerText="Ações" style="width:180px; text-align:center;">
+
+                <p:commandButton icon="pi pi-check" title="Concluir" action="#{tarefaBean.concluir(t)}"
+                                 style="background-color: green"
+                                 process="@this" update=":formTarefas:msgs :formTarefas:tblTarefas">
+                    <f:setPropertyActionListener target="#{tarefaBean.selecionarTarefa}" value="#{t}"/>
+                </p:commandButton>
+
+                <p:commandButton icon="pi pi-pencil"
+                                 style="background-color: gold "
+                                 title="Editar"
+                                 action="#{tarefaBean.prepararEditar(t)}"
+                                 process="@this"
+                                 update=":formTarefas:msgs :formTarefas:tblTarefas :dlgEditar"
+                                oncomplete="PF('dlgEditar').show()">
+                    <f:setPropertyActionListener target="#{tarefaBean.selecionarTarefa}" value="#{t}"/>
+                </p:commandButton>
+                <p:commandButton icon="pi pi-trash" title="Excluir" action="#{tarefaBean.excluir(t)}"
+                                 style="background-color: crimson"
+                                 process="@this" oncomplete="PF('confirmDialog').show()"
+                                 update=":formTarefas:msgs :formTarefas:tblTarefas">
+                    <f:setPropertyActionListener target="#{tarefaBean.selecionarTarefa}" value="#{t}"/>
+                </p:commandButton>
+
+            </p:column>
+        </p:dataTable>
+
+            <p:dialog id="dlgEditar"
+                      widgetVar="dlgEditar"
+                      header="Editar Tarefa"
+                      modal="true"
+                      resizable="false"
+                      draggable="false"
+                      closable="false"
+                      dynamic="true"
+                      cache="false"
+                      styleClass="custom-edit-dialog"
+                      showEffect="fade" hideEffect="fade"
+                      appendTo="@form">
+
+                <h:panelGrid columns="2" columnClasses="label,field" style="width:100%; padding:1rem;">
+                    <h:outputLabel for="editNumero" value="Número:"/>
+                    <p:inputText id="editNumero"
+                                 value="#{tarefaBean.selecionarTarefa.id}"
+                                 disabled="true" style="width:100%"/>
+
+                    <h:outputLabel for="editTitulo" value="Título:"/>
+                    <p:inputText id="editTitulo"
+                                 value="#{tarefaBean.selecionarTarefa.titulo}"
+                                 style="width:100%"/>
+
+                    <h:outputLabel for="editDescricao" value="Descrição:"/>
+                    <p:inputTextarea id="editDescricao"
+                                     value="#{tarefaBean.selecionarTarefa.descricao}"
+                                     rows="4" style="width:100%"/>
+
+                    <h:outputLabel for="editResponsavel" value="Responsável:"/>
+                    <p:selectOneMenu id="editResponsavel"
+                                     value="#{tarefaBean.selecionarTarefa.responsavel}"
+                                     converter="omnifaces.SelectItemsConverter"
+                                     style="width:100%">
+                        <f:selectItem itemLabel="SELECIONE" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{responsavelBean.responsavelCombo()}"
+                                       var="r"
+                                       itemValue="#{r}"
+                                       itemLabel="#{r.nome}"/>
+                    </p:selectOneMenu>
+
+                    <h:outputLabel for="editSituacao" value="Situação:"/>
+                    <p:selectOneMenu id="editSituacao"
+                                     value="#{tarefaBean.selecionarTarefa.situacao}"
+                                     converter="omnifaces.SelectItemsConverter"
+                                     style="width:100%">
+                        <f:selectItem itemLabel="SELECIONE" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{situacaoBean.situacaoCombo()}"
+                                       var="s"
+                                       itemValue="#{s}"
+                                       itemLabel="#{s.descricao}"/>
+                    </p:selectOneMenu>
+
+                    <h:outputLabel for="editDeadline" value="Deadline:"/>
+                    <p:datePicker id="editDeadline"
+                                  value="#{tarefaBean.selecionarTarefa.deadline}"
+                                  showIcon="true"
+                                  showOnFocus="false"
+                                  style="width:100%"/>
+                </h:panelGrid>
+
+                <f:facet name="footer">
+                    <p:commandButton value="Salvar"
+                                     action="#{tarefaBean.atualizar}"
+                                     process="@form"
+                                     update=":formTarefas:msgs :formTarefas:tblTarefas :formTarefas:dlgEditar"
+                                     oncomplete="PF('dlgEditar').hide()"/>
+                    <p:commandButton value="Cancelar"
+                                     type="button"
+                                     onclick="PF('dlgEditar').hide()"
+                                     styleClass="ui-button-secondary"/>
+                </f:facet>
+            </p:dialog>
+
+        <!-- Botão de Busca -->
+        <div class="button-row">
+            <p:commandButton value="Buscar" action="#{tarefaBean.buscarTarefa}"
+                             process="@form" update="msgs tblTarefas"/>
+        </div>
+    </div>
+
+    <!-- Mensagens -->
+    <p:messages id="msgs" autoUpdate="true" showDetail="true"/>
+
+    <!-- Diálogo de Confirmação -->
+    <p:confirmDialog widgetVar="confirmDialog" header="Confirmação"
+                     message="Deseja realmente excluir esta tarefa?"
+                     icon="pi pi-exclamation-triangle">
+        <p:commandButton value="Sim" action="#{tarefaBean.confirmarExcluir}"
+                         process="@this" update=":formTarefas:msgs :formTarefas:tblTarefas"
+                         oncomplete="PF('confirmDialog').hide()"/>
+        <p:commandButton value="Não" onclick="PF('confirmDialog').hide()" type="button"/>
+    </p:confirmDialog>
+</h:form>
+</div>
+        </h:body>
+        </html>

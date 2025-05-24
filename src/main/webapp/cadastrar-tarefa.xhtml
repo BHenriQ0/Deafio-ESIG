@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <meta charset="UTF-8"/>
+    <title>Cadastrar Tarefa</title>
+    <style>
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #e9f4fb; /* azul muito suave */
+        }
+
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 2rem;
+            width: 700px;
+            height: 500px;
+            border: 1px solid #4a90e2;
+            border-radius: 8px;
+            background: #f0f8ff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+        }
+
+        .box h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 1.5rem;
+            color: #1a4780;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .row label {
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+            color: #204d74; /* tom escuro */
+        }
+
+        .row .input-wrapper {
+            flex: 1;
+        }
+
+        .pair-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .pair-row .row {
+            flex: 1;
+        }
+
+        /* PrimeFaces inputs estilizados */
+        .ui-inputtext,
+        .ui-inputtextarea,
+        .ui-selectonemenu,
+        .ui-datepicker {
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid #7fb3e6;
+            border-radius: 4px;
+            color: #0f3d63;
+        }
+
+        .ui-inputtext:focus,
+        .ui-inputtextarea:focus,
+        .ui-selectonemenu:focus,
+        .ui-datepicker:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .button-row .ui-button {
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1.5rem;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .button-row .ui-button:hover {
+            background-color: #357ab8;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="container">
+        <h:form>
+            <div class="box">
+
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+                    <h1 style="margin:0;">Cadastrar Tarefa</h1>
+                    <p:button icon="pi pi-align-justify"
+                              title="Listar Tarefa"
+                              value="Listar Tarefas"
+                              outcome="listar-tarefa?faces-redirect=true" />
+                </div>
+
+
+                <div class="row">
+                    <label for="idTitulo">Título:</label>
+                    <div class="input-wrapper">
+                        <p:inputText id="idTitulo" value="#{tarefaBean.tarefaTitulo}" style="width:100%;"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="idDescricao">Descrição:</label>
+                    <div class="input-wrapper">
+                        <p:inputTextarea id="idDescricao" rows="4" cols="30" value="#{tarefaBean.tarefaDescricao}"
+                                         style="width:100%;"/>
+                    </div>
+                </div>
+
+                <div class="pair-row">
+                    <div class="row">
+                        <label for="idResponsavel">Responsável:</label>
+                        <div class="input-wrapper">
+                            <p:selectOneMenu id="idResponsavel"
+                                             value="#{tarefaBean.tarefaResponsavel}"
+                                             style="width:100%"
+                                             converter="omnifaces.SelectItemsConverter">
+                                <f:selectItem itemLabel="SELECIONE"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItems value="#{responsavelBean.responsavelCombo()}"
+                                               var="r"
+                                               itemValue="#{r}"
+                                               itemLabel="#{r.nome}"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="idPrioridade">Prioridade:</label>
+                        <div class="input-wrapper">
+                            <p:selectOneMenu id="idPrioridade"
+                                             value="#{tarefaBean.tarefaPrioridade}"
+                                             style="width:100%"
+                                             converter="omnifaces.SelectItemsConverter">
+                                <f:selectItem itemLabel="SELECIONE"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItems value="#{prioridadeBean.prioridadesCombo()}"
+                                               var="p"
+                                               itemValue="#{p}"
+                                               itemLabel="#{p.descricao}"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="idData">Deadline:</label>
+                    <div class="input-wrapper">
+                        <p:datePicker id="idData" showIcon="true" showOnFocus="false" value="#{tarefaBean.tarefaData}"
+                                      style="width:100%;"/>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <p:commandButton value="Cadastrar"
+                                     action="#{tarefaBean.cadastrarTarefa}"
+                                     process="@form"
+                                     update="msgs"/>
+                </div>
+            </div>
+            <p:messages id="msgs" autoUpdate="true" showDetail="true"/>
+        </h:form>
+    </div>
+</h:body>
+</html>
