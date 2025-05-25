@@ -47,10 +47,10 @@ CREATE DATABASE "gerenciador-de-tarefas";
 
 2: Ajuste usuário e senha em src/main/resources/META-INF/persistence.xml:
 
-<property name="jakarta.persistence.jdbc.user" value="<seu_usuario>"/>
-<property name="jakarta.persistence.jdbc.password" value="<sua_senha>"/> 
+( <property name="jakarta.persistence.jdbc.user" value="<seu_usuario>"/> )
+( <property name="jakarta.persistence.jdbc.password" value="<sua_senha>"/> )
 
->>> Execução Local <<<
+Execução Local
 
 1: Clone o repositório:
 
